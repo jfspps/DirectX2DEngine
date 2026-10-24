@@ -7,32 +7,22 @@
 // GLOBALS ////////////////////////////////////////////////
 HWND mainWindowHandle = NULL; // globally track main window
 HINSTANCE hInstanceApp = NULL; // globally track hinstance
+int windowClosed = 0;    // tracks if window is closed
 
 // directdraw stuff
 
 LPDIRECTDRAW7         lpdd         = NULL;   // dd object
-LPDIRECTDRAWSURFACE7  lpddsprimary = NULL;   // dd primary surface
-LPDIRECTDRAWSURFACE7  lpddsback    = NULL;   // dd back surface
-LPDIRECTDRAWPALETTE   lpddpal      = NULL;   // a pointer to the created dd palette
+LPDIRECTDRAWSURFACE7  lpddsPrimary = NULL;   // dd primary surface
+LPDIRECTDRAWSURFACE7  lpddsBack    = NULL;   // dd back surface
+LPDIRECTDRAWPALETTE   lpddPalette  = NULL;   // a pointer to the created dd palette
 LPDIRECTDRAWCLIPPER   lpddclipper  = NULL;   // dd clipper
 PALETTEENTRY          palette[256];          // color palette
-PALETTEENTRY          save_palette[256];     // used to save palettes
+PALETTEENTRY          savePalette[256];     // used to save palettes
 DDSURFACEDESC2        ddsd;                  // a direct draw surface description struct
 DDBLTFX               ddbltfx;               // used to fill
 DDSCAPS2              ddscaps;               // a direct draw surface capabilities struct
 HRESULT               ddrval;                // result back from dd calls
-DWORD                 start_clock_count = 0; // used for timing
-
-// these defined the general clipping rectangle
-int min_clip_x = 0,                          // clipping rectangle 
-    max_clip_x = SCREEN_WIDTH-1,
-    min_clip_y = 0,
-    max_clip_y = SCREEN_HEIGHT-1;
-
-// these are overwritten globally by DD_Init()
-int screen_width  = SCREEN_WIDTH,            // width of screen
-    screen_height = SCREEN_HEIGHT,           // height of screen
-    screen_bpp    = SCREEN_BPP;              // bits per pixel
+DWORD                 startClockCount = 0; // used for timing
 
 char mainLogBuffer[80];                     // general printing buffer
 
@@ -124,14 +114,16 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	if (!(hWnd = CreateWindowEx(NULL,                  
 								WINDOW_CLASS_NAME,     
 								"DirectX 9.0c 3D Game engine (ESC to close)",
-								WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+								WS_POPUP | WS_VISIBLE,
 					 			0,0,	  // initial (x,y)
-								900,600,  // initial (width, height)
+								SCREEN_WIDTH, SCREEN_HEIGHT,  // initial (width, height)
 								NULL,	  // handle to parent 
 								NULL,	  // handle to menu
 								hInstance, // instance of this application
-								NULL)))	// extra creation parms
-	return(0);
+								NULL))) // extra creation parms
+	{
+		return(0);
+	}
 
 	// save main window handle
 	mainWindowHandle = hWnd;
@@ -157,6 +149,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 	gameShutdown(NULL, NULL);
 
-	// return to Windows like this
+	// return to Windows
 	return (msg.wParam);
 }
