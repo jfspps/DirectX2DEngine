@@ -1,3 +1,4 @@
+
 #include "main.h"
 #include "gameMain.h"
 #include "gameInit.h"
@@ -7,7 +8,34 @@
 HWND mainWindowHandle = NULL; // globally track main window
 HINSTANCE hInstanceApp = NULL; // globally track hinstance
 
-char mainLogBuffer[80];
+// directdraw stuff
+
+LPDIRECTDRAW7         lpdd         = NULL;   // dd object
+LPDIRECTDRAWSURFACE7  lpddsprimary = NULL;   // dd primary surface
+LPDIRECTDRAWSURFACE7  lpddsback    = NULL;   // dd back surface
+LPDIRECTDRAWPALETTE   lpddpal      = NULL;   // a pointer to the created dd palette
+LPDIRECTDRAWCLIPPER   lpddclipper  = NULL;   // dd clipper
+PALETTEENTRY          palette[256];          // color palette
+PALETTEENTRY          save_palette[256];     // used to save palettes
+DDSURFACEDESC2        ddsd;                  // a direct draw surface description struct
+DDBLTFX               ddbltfx;               // used to fill
+DDSCAPS2              ddscaps;               // a direct draw surface capabilities struct
+HRESULT               ddrval;                // result back from dd calls
+DWORD                 start_clock_count = 0; // used for timing
+
+// these defined the general clipping rectangle
+int min_clip_x = 0,                          // clipping rectangle 
+    max_clip_x = SCREEN_WIDTH-1,
+    min_clip_y = 0,
+    max_clip_y = SCREEN_HEIGHT-1;
+
+// these are overwritten globally by DD_Init()
+int screen_width  = SCREEN_WIDTH,            // width of screen
+    screen_height = SCREEN_HEIGHT,           // height of screen
+    screen_bpp    = SCREEN_BPP;              // bits per pixel
+
+char mainLogBuffer[80];                     // general printing buffer
+
 
 LRESULT CALLBACK WindowProc(HWND hWnd, 
 						    UINT msg, 
