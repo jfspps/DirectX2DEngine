@@ -116,7 +116,6 @@ LPDIRECTDRAWCLIPPER attachClipper(
 
 		if (clipList[index].bottom > regionData->rdh.rcBound.bottom)
 		regionData->rdh.rcBound.bottom = clipList[index].bottom;
-
 	}
 
 	// now we have computed the bounding rectangle region and set up the data
@@ -138,4 +137,134 @@ LPDIRECTDRAWCLIPPER attachClipper(
 	// all is well, so release memory and send back the pointer to the new clipper
 	free(regionData);
 	return(lpddclipper);
+}
+
+int flipBitmap(UCHAR *image, int bytesPerLine, int height){
+
+	UCHAR *buffer; // used to perform the image processing
+	int index;
+
+	// allocate the temporary buffer
+	if (!(buffer = (UCHAR *)malloc(bytesPerLine * height)))
+	   return(0);
+
+	// copy image to work area
+	memcpy(buffer, image, bytesPerLine * height);
+
+	// flip vertically
+	for (index = 0; index < height; index++)
+		memcpy(&image[((height-1) - index) * bytesPerLine],
+			   &buffer[index * bytesPerLine], 
+			   bytesPerLine);
+
+	free(buffer);
+
+	// return success
+	return(1);
+}
+
+int loadBitmapFile(BITMAP_FILE_PTR bitmap, char *filename){
+
+	int fileHandle, index;
+	OFSTRUCT fileData;       // the file data information
+
+	// open the file if it exists
+	if ((fileHandle = OpenFile(filename, &fileData, OF_READ)) == -1)
+	   return(0);
+
+	// now load the bitmap file header
+	_lread(fileHandle, &bitmap->bitmapfileheader, sizeof(BITMAPFILEHEADER));
+
+	// test if this is a bitmap file
+	if (bitmap->bitmapfileheader.bfType != BITMAP_ID){
+	   _lclose(fileHandle);
+	   return(0);
+	}
+
+	// first the bitmap infoheader
+
+	// now load the bitmap file header
+	_lread(fileHandle, &bitmap->bitmapinfoheader, sizeof(BITMAPINFOHEADER));
+
+	// now load the color palette if there is one
+	if (bitmap->bitmapinfoheader.biBitCount == 8){
+	   _lread(fileHandle, &bitmap->palette, MAX_COLORS_PALETTE * sizeof(PALETTEENTRY));
+
+	   // now set all the flags in the palette correctly and fix the reversed 
+	   // BGR RGBQUAD data format
+	   for (index = 0; index < MAX_COLORS_PALETTE; index++){
+		   // reverse the red and green fields
+		   int tempColour = bitmap->palette[index].peRed;
+		   bitmap->palette[index].peRed  = bitmap->palette[index].peBlue;
+		   bitmap->palette[index].peBlue = tempColour;
+	       
+		   // always set the flags word to this
+		   bitmap->palette[index].peFlags = PC_NOCOLLAPSE;
+	   }
+
+	}
+
+	// finally the image data itself
+	_lseek(fileHandle, -(int)(bitmap->bitmapinfoheader.biSizeImage), SEEK_END);
+
+	// now read in the image, if the image is 8 or 16 bit then simply read it
+	// but if its 24 bit then read it into a temporary area and then convert
+	// it to a 16 bit image
+
+	if (bitmap->bitmapinfoheader.biBitCount == 8 || 
+		bitmap->bitmapinfoheader.biBitCount == 16 || 
+		bitmap->bitmapinfoheader.biBitCount == 24){
+
+	   // delete the last image if there was one
+	   if (bitmap->buffer)
+		   free(bitmap->buffer);
+
+	   // allocate the memory for the image
+	   if (!(bitmap->buffer = (UCHAR *)malloc(bitmap->bitmapinfoheader.biSizeImage))){
+		  _lclose(fileHandle);
+		  return(0);
+		  }
+
+	   // now read it in
+	   _lread(fileHandle, bitmap->buffer, bitmap->bitmapinfoheader.biSizeImage);
+
+	} else {
+	   // serious problem
+	   return(0);
+	}
+
+	#if 0
+	// write the file info out 
+	printf("\nfilename:%s \nsize=%d \nwidth=%d \nheight=%d 
+			\nbitsperpixel=%d \ncolors=%d \nimpcolors=%d",
+			filename,
+			bitmap->bitmapinfoheader.biSizeImage,
+			bitmap->bitmapinfoheader.biWidth,
+			bitmap->bitmapinfoheader.biHeight,
+			bitmap->bitmapinfoheader.biBitCount,
+			bitmap->bitmapinfoheader.biClrUsed,
+			bitmap->bitmapinfoheader.biClrImportant);
+	#endif
+
+	// close the file
+	_lclose(fileHandle);
+
+	// flip the bitmap
+	flipBitmap(bitmap->buffer, 
+				bitmap->bitmapinfoheader.biWidth * 
+					(bitmap->bitmapinfoheader.biBitCount/8), 
+				bitmap->bitmapinfoheader.biHeight);
+
+	// return success
+	return(1);
+}
+
+int unloadBitmapFile(BITMAP_FILE_PTR bitmap){
+	if (bitmap->buffer){
+	   free(bitmap->buffer);
+	   bitmap->buffer = NULL;
+	}
+
+	// return success
+	return(1);
 }

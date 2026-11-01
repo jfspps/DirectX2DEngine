@@ -10,3 +10,9 @@ int gameMain(void *params, int numParams);
 */
 LPDIRECTDRAWCLIPPER attachClipper(
 	LPDIRECTDRAW7 lpdd7, LPDIRECTDRAWSURFACE7 lpdds, int numRects, LPRECT clipList);
+
+int flipBitmap(UCHAR *image, int bytesPerLine, int height);
+
+int loadBitmapFile(BITMAP_FILE_PTR bitmap, char *filename);
+
+int unloadBitmapFile(BITMAP_FILE_PTR bitmap);

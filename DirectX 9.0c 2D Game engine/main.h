@@ -37,6 +37,9 @@
 #define SCREEN_BPP      8    // bits per pixel
 #define MAX_COLORS      256  // maximum colors
 
+#define BITMAP_ID            0x4D42 // universal id for a bitmap
+#define MAX_COLORS_PALETTE   256
+
 typedef unsigned short USHORT;
 typedef unsigned short WORD;
 typedef unsigned char  UCHAR;
@@ -49,3 +52,11 @@ typedef unsigned char  BYTE;
 
 // initializes a DirectDraw struct
 #define DDRAW_INIT_STRUCT(ddstruct) { memset(&ddstruct, 0, sizeof(ddstruct)); ddstruct.dwSize = sizeof(ddstruct);}
+
+// container structure for bitmaps .BMP file
+typedef struct BITMAP_FILE_TAG{
+	BITMAPFILEHEADER bitmapfileheader;  // bitmap file header
+    BITMAPINFOHEADER bitmapinfoheader;  // bitmap file info (inc. palette if necessary)
+    PALETTEENTRY     palette[256];
+    UCHAR            *buffer;           // pointer to the bitmap data
+} BITMAP_FILE, *BITMAP_FILE_PTR;
