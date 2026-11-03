@@ -268,3 +268,163 @@ int unloadBitmapFile(BITMAP_FILE_PTR bitmap){
 	// return success
 	return(1);
 }
+
+LPDIRECTDRAWSURFACE7 createOffscreenSurface(
+	LPDIRECTDRAW7 lpdd7,
+	int width,
+	int height,
+	int memTypeFlag){
+
+	// pointer to the offscreen surface
+	LPDIRECTDRAWSURFACE7 lpddsOff = NULL;
+
+	// initialise the surface description
+	DDSURFACEDESC2 ddsd;
+	memset(&ddsd, 0, sizeof(ddsd));
+
+	// start initialising the structure's fields
+
+	// decide which valid fields will be provided or required
+	// for the offscreen surface
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
+
+	// we need to define the width and height of all offscreen surfaces
+	// (this is usually set to handle whatever bitmap is stored, not
+	// necessarily the entire viewport)
+	ddsd.dwWidth = width;
+	ddsd.dwHeight = height;
+
+	// now set the capabilities for an offscreen surface description, 
+	// to occupy DDSCAPS_VIDEOMEMORY for video memory or
+	// DDSCAPS_SYSTEMMEMORY for system memory
+	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | memTypeFlag;
+
+	// now create the primary surface, and initialise lpddsprimary
+	if (FAILED(lpdd7->CreateSurface(&ddsd, &lpddsOff, NULL))){
+		// failed to build the primary surface, clean up and exit
+		return(0);
+	}
+
+	// set the offscreen surface colour key to 0
+	DDCOLORKEY colourKey;
+	colourKey.dwColorSpaceLowValue = 0;
+	colourKey.dwColorSpaceHighValue = 0;
+
+	lpddsOff->SetColorKey(DDCKEY_SRCBLT, &colourKey);
+
+	return lpddsOff;
+}
+
+LPDIRECTDRAWSURFACE7 createOffscreenSurfaceSrcBlitting(
+	LPDIRECTDRAW7 lpdd7,
+	int width,
+	int height,
+	int memTypeFlag,
+	int lowColourKeyValue,
+	int highColourKeyValue){
+
+	// pointer to the offscreen surface
+	LPDIRECTDRAWSURFACE7 lpddsOff = NULL;
+
+	// initialise the surface description
+	DDSURFACEDESC2 ddsd;
+	memset(&ddsd, 0, sizeof(ddsd));
+
+	// start initialising the structure's fields
+
+	// decide which valid fields will be provided or required
+	// for the offscreen surface (with source colour key blitting)
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_CKSRCBLT;
+
+	// we need to define the width and height of all offscreen surfaces
+	// (this is usually set to handle whatever bitmap is stored, not
+	// necessarily the entire viewport)
+	ddsd.dwWidth = width;
+	ddsd.dwHeight = height;
+
+	// now set the capabilities for an offscreen surface description, 
+	// to occupy DDSCAPS_VIDEOMEMORY for video memory or
+	// DDSCAPS_SYSTEMMEMORY for system memory
+	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | memTypeFlag;
+
+	// set the offscreen colour key DDSD_CKSRCBLT
+	ddsd.ddckCKSrcBlt.dwColorSpaceLowValue = lowColourKeyValue;
+	ddsd.ddckCKSrcBlt.dwColorSpaceHighValue = highColourKeyValue;
+
+	// now create the primary surface, and initialise lpddsprimary
+	if (FAILED(lpdd7->CreateSurface(&ddsd, &lpddsOff, NULL))){
+		// failed to build the primary surface, clean up and exit
+		return(0);
+	}
+
+	// now set the colour key for surface itself, with source blitting
+	DDCOLORKEY colourKey;
+	colourKey.dwColorSpaceLowValue = lowColourKeyValue;
+	colourKey.dwColorSpaceHighValue = highColourKeyValue;
+
+	if (lowColourKeyValue < highColourKeyValue){
+		// range of transparent colors required
+		lpddsOff->SetColorKey(DDCKEY_SRCBLT | DDCKEY_COLORSPACE, &colourKey);
+	} else {
+		lpddsOff->SetColorKey(DDCKEY_SRCBLT, &colourKey);
+	}
+
+	return lpddsOff;
+}
+
+LPDIRECTDRAWSURFACE7 createOffscreenSurfaceDestBlitting(
+	LPDIRECTDRAW7 lpdd7,
+	int width,
+	int height,
+	int memTypeFlag,
+	int lowColourKeyValue,
+	int highColourKeyValue){
+
+	// pointer to the offscreen surface
+	LPDIRECTDRAWSURFACE7 lpddsOff = NULL;
+
+	// initialise the surface description
+	DDSURFACEDESC2 ddsd;
+	memset(&ddsd, 0, sizeof(ddsd));
+
+	// start initialising the structure's fields
+
+	// decide which valid fields will be provided or required
+	// for the offscreen surface (with source colour key blitting)
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_CKDESTBLT;
+
+	// we need to define the width and height of all offscreen surfaces
+	// (this is usually set to handle whatever bitmap is stored, not
+	// necessarily the entire viewport)
+	ddsd.dwWidth = width;
+	ddsd.dwHeight = height;
+
+	// now set the capabilities for an offscreen surface description, 
+	// to occupy DDSCAPS_VIDEOMEMORY for video memory or
+	// DDSCAPS_SYSTEMMEMORY for system memory
+	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | memTypeFlag;
+
+	// set the offscreen colour key DDSD_CKSRCBLT
+	ddsd.ddckCKDestBlt.dwColorSpaceLowValue = lowColourKeyValue;
+	ddsd.ddckCKDestBlt.dwColorSpaceHighValue = highColourKeyValue;
+
+	// now create the primary surface, and initialise lpddsprimary
+	if (FAILED(lpdd7->CreateSurface(&ddsd, &lpddsOff, NULL))){
+		// failed to build the primary surface, clean up and exit
+		return(0);
+	}
+
+	// now set the colour key for surface itself, with destination blitting
+	DDCOLORKEY colourKey;
+	colourKey.dwColorSpaceLowValue = lowColourKeyValue;
+	colourKey.dwColorSpaceHighValue = highColourKeyValue;
+
+	if (lowColourKeyValue < highColourKeyValue){
+		// range of transparent colors required
+		lpddsOff->SetColorKey(DDCKEY_DESTBLT | DDCKEY_COLORSPACE, &colourKey);
+	} else {
+		lpddsOff->SetColorKey(DDCKEY_DESTBLT, &colourKey);
+	}
+
+	return lpddsOff;
+}
