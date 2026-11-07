@@ -3,6 +3,7 @@
 #include "gameMain.h"
 #include "gameInit.h"
 #include "gameShutdown.h"
+#include "rasteriser.h"
 
 // GLOBALS ////////////////////////////////////////////////
 HWND mainWindowHandle = NULL; // globally track main window
