@@ -61,17 +61,17 @@ typedef struct BITMAP_FILE_TAG{
     UCHAR            *buffer;           // pointer to the bitmap data
 } BITMAP_FILE, *BITMAP_FILE_PTR;
 
-// 2D polygon vertex
+// 2D polygon vertex, I for int (x, y)
 typedef struct VERTEX2DI_TYP {
 	int x, y;
 } VERTEX2DI, *VERTEX2DI_PTR;
 
-// 2D polygon
-typedef struct POLYGON2D_TYP {
+// 2D polygon, I for int (x, y)
+typedef struct POLYGON2DI_TYP {
 	int state;
 	int numVerts;
 	int x0, y0;
 	int xv, yv;
 	DWORD colour;
 	VERTEX2DI *vList;
-} POLYGON2D, *POLYGON2D_PTR;
+} POLYGON2DI, *POLYGON2DI_PTR;

@@ -46,7 +46,7 @@ int gameMain(void *params = NULL, int numParams = 0){
 
 	// Demo C: draw polygons
 	// define points of asteroid
-	POLYGON2D asteroids[64]; // the asteroids
+	POLYGON2DI asteroids[64]; // the asteroids
 	VERTEX2DI asteroidVertices[8] = {33,-3, 9,-18, -12,-9, -21,-12, -9,6, -15,15, -3,27, 21,21};
 
 	// initialize all asteroids
@@ -71,7 +71,7 @@ int gameMain(void *params = NULL, int numParams = 0){
 		asteroids[curr_index].colour = rand()%256;
 
 		// do the graphics
-		draw2DPolygon8Bit(
+		draw2DIPolygon8Bit(
 			&asteroids[curr_index], 
 			(UCHAR *)ddsd.lpSurface, 
 			ddsd.lPitch);

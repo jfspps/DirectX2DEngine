@@ -24,6 +24,6 @@ int drawClipLine8bit(int x0,int y0, int x1, int y1,
 				 UCHAR color, UCHAR *videoBuffer, int lpitch);
 
 /*
-* Draws a polygon in 8-bit mode
+* Draws a polygon in 8-bit mode, I for int (x, y)
 */
-int draw2DPolygon8Bit(POLYGON2D_PTR polygon, UCHAR *videoBuffer, int lPitch);
+int draw2DIPolygon8Bit(POLYGON2DI_PTR polygon, UCHAR *videoBuffer, int lPitch);

@@ -484,7 +484,7 @@ int drawClipLine8bit(int x0, int y0, int x1, int y1, UCHAR color,
 	return(1);
 }
 
-int draw2DPolygon8Bit(POLYGON2D_PTR polygon, UCHAR *videoBuffer, int lPitch){
+int draw2DIPolygon8Bit(POLYGON2DI_PTR polygon, UCHAR *videoBuffer, int lPitch){
 	if (polygon->state){
 		int index;
 		for (index = 0; index < polygon->numVerts - 1; index++){
