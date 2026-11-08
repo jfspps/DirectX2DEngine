@@ -483,3 +483,37 @@ int drawClipLine8bit(int x0, int y0, int x1, int y1, UCHAR color,
 	// return success
 	return(1);
 }
+
+int draw2DPolygon8Bit(POLYGON2D_PTR polygon, UCHAR *videoBuffer, int lPitch){
+	if (polygon->state){
+		int index;
+		for (index = 0; index < polygon->numVerts - 1; index++){
+			drawClipLine8bit(
+				// first endpoint
+				polygon->vList[index].x + polygon->x0,
+				polygon->vList[index].y + polygon->y0,
+				// next endpoint
+				polygon->vList[index + 1].x + polygon->x0,
+				polygon->vList[index + 1].y + polygon->y0,
+				polygon->colour,
+				videoBuffer,
+				lPitch);
+		}
+
+		// close the polygon
+		drawClipLine8bit(
+				// first endpoint
+				polygon->vList[0].x + polygon->x0,
+				polygon->vList[0].y + polygon->y0,
+				// next endpoint
+				polygon->vList[index].x + polygon->x0,
+				polygon->vList[index].y + polygon->y0,
+				polygon->colour,
+				videoBuffer,
+				lPitch);
+
+		return(1);
+	}
+
+	return(0);
+}

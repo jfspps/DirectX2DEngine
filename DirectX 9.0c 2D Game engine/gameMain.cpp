@@ -44,23 +44,56 @@ int gameMain(void *params = NULL, int numParams = 0){
 		destPtr += ddsd.lPitch;
 	}
 
+	// Demo C: draw polygons
+	// define points of asteroid
+	POLYGON2D asteroids[64]; // the asteroids
+	VERTEX2DI asteroidVertices[8] = {33,-3, 9,-18, -12,-9, -21,-12, -9,6, -15,15, -3,27, 21,21};
+
+	// initialize all asteroids
+	for (int curr_index = 0; curr_index < 64; curr_index++){
+		// initialize the asteroid
+		asteroids[curr_index].state       = 1;   // turn it on
+		asteroids[curr_index].numVerts   = 8;  
+		asteroids[curr_index].x0          = rand()%SCREEN_WIDTH;
+		asteroids[curr_index].y0          = rand()%SCREEN_HEIGHT;
+		asteroids[curr_index].xv          = -8 + rand()%17;
+		asteroids[curr_index].yv          = -8 + rand()%17;
+		asteroids[curr_index].colour       = rand()%256;
+		asteroids[curr_index].vList       = new VERTEX2DI [asteroids[curr_index].numVerts];
+	 
+	   for (int index = 0; index < asteroids[curr_index].numVerts; index++)
+			asteroids[curr_index].vList[index] = asteroidVertices[index];
+	}
+
+	for (int curr_index = 0; curr_index < 64; curr_index++)
+    {
+		// glow asteroids
+		asteroids[curr_index].colour = rand()%256;
+
+		// do the graphics
+		draw2DPolygon8Bit(
+			&asteroids[curr_index], 
+			(UCHAR *)ddsd.lpSurface, 
+			ddsd.lPitch);
+	}
+
 	// begin drawing to the back buffer (this will
 	// eventually be replaced by engine requirements)
 
-	// Demo: draw 10 random clipped lines
-	for (int index = 0; index < 10; index++){
-		drawClipLine8bit(
-			rand()%SCREEN_WIDTH, 
-			rand()%SCREEN_HEIGHT,
-			rand()%SCREEN_WIDTH, 
-			rand()%SCREEN_HEIGHT,
-			rand()%256,
-			(UCHAR *)ddsd.lpSurface, 
-			ddsd.lPitch);
-    }
+	// Demo B: draw 10 random clipped lines
+	//for (int index = 0; index < 10; index++){
+	//	drawClipLine8bit(
+	//		rand()%SCREEN_WIDTH, 
+	//		rand()%SCREEN_HEIGHT,
+	//		rand()%SCREEN_WIDTH, 
+	//		rand()%SCREEN_HEIGHT,
+	//		rand()%256,
+	//		(UCHAR *)ddsd.lpSurface, 
+	//		ddsd.lPitch);
+ //   }
 
 
-	// Demo: plot 1000 random pixels
+	// Demo A: plot 1000 random pixels
 	//for (int index = 0; index < 1000; index++){
 	//	int x = rand() % SCREEN_WIDTH;
 	//	int y = rand() % SCREEN_HEIGHT;
