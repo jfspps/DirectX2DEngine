@@ -1,4 +1,5 @@
 #include "main.h"
+#include "rasteriser.h"
 
 // see main.cpp
 extern HWND mainWindowHandle;
@@ -43,17 +44,32 @@ int gameMain(void *params = NULL, int numParams = 0){
 		destPtr += ddsd.lPitch;
 	}
 
-	// begin drawing to the back buffer;
-	// in this example we plot 5000 random pixels
-	// but later would be updated for the engine requirements
+	// begin drawing to the back buffer (this will
+	// eventually be replaced by engine requirements)
 
-	for (int index = 0; index < 5000; index++){
-		int x = rand() % SCREEN_WIDTH;
-		int y = rand() % SCREEN_HEIGHT;
+	// Demo: draw 10 random clipped lines
+	for (int index = 0; index < 10; index++){
+		drawClipLine8bit(
+			rand()%SCREEN_WIDTH, 
+			rand()%SCREEN_HEIGHT,
+			rand()%SCREEN_WIDTH, 
+			rand()%SCREEN_HEIGHT,
+			rand()%256,
+			(UCHAR *)ddsd.lpSurface, 
+			ddsd.lPitch);
+    }
 
-		UCHAR colour = rand() % 256;
-		backBuffer[x + y*ddsd.lPitch] = colour;
-	}
+
+	// Demo: plot 1000 random pixels
+	//for (int index = 0; index < 1000; index++){
+	//	int x = rand() % SCREEN_WIDTH;
+	//	int y = rand() % SCREEN_HEIGHT;
+
+	//	UCHAR colour = rand() % 256;
+	//	backBuffer[x + y*ddsd.lPitch] = colour;
+	//}
+
+	// ...end of Demo
 
 	if (FAILED(lpddsBack->Unlock(NULL))){
 		// failed to unlock the back buffer

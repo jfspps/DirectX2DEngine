@@ -27,6 +27,12 @@ DWORD                 startClockCount = 0; // used for timing
 
 char mainLogBuffer[80];                     // general printing buffer
 
+// global clipping region 200x200, centered in the viewport
+int minClipX = ((SCREEN_WIDTH/2) - 100),
+    maxClipX = ((SCREEN_WIDTH/2) + 100),
+    minClipY = ((SCREEN_HEIGHT/2) - 100),
+    maxClipY = ((SCREEN_HEIGHT/2) + 100);
+
 
 LRESULT CALLBACK WindowProc(HWND hWnd, 
 						    UINT msg, 
