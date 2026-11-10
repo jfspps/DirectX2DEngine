@@ -27,3 +27,13 @@ int drawClipLine8bit(int x0,int y0, int x1, int y1,
 * Draws a polygon in 8-bit mode, I for int (x, y)
 */
 int draw2DIPolygon8Bit(POLYGON2DI_PTR polygon, UCHAR *videoBuffer, int lPitch);
+
+/*
+* Draws a polygon in 8-bit mode, F for float (x, y)
+*/
+int draw2DFPolygon8Bit(POLYGON2DF_PTR polygon, UCHAR *videoBuffer, int lPitch);
+
+/*
+* Rotates a 2D (assumed float based) polygon by theta degrees
+*/
+int rotatePolygon2D(POLYGON2DF_PTR poly, int thetaDeg);

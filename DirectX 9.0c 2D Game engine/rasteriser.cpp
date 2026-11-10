@@ -5,6 +5,9 @@ extern int maxClipX;
 extern int minClipY;
 extern int maxClipY;
 
+extern float cosLookup[360];
+extern float sinLookup[360];
+
 int drawLine8bit(int x0, int y0, int x1, int y1, 
 				 UCHAR colour, UCHAR *videoBuffer, int lpitch){
 
@@ -516,4 +519,58 @@ int draw2DIPolygon8Bit(POLYGON2DI_PTR polygon, UCHAR *videoBuffer, int lPitch){
 	}
 
 	return(0);
+}
+
+int draw2DFPolygon8Bit(POLYGON2DF_PTR polygon, UCHAR *videoBuffer, int lPitch){
+	if (polygon->state){
+		int index;
+		for (index = 0; index < polygon->numVerts - 1; index++){
+			drawClipLine8bit(
+				// first endpoint
+				polygon->vList[index].x + polygon->x0,
+				polygon->vList[index].y + polygon->y0,
+				// next endpoint
+				polygon->vList[index + 1].x + polygon->x0,
+				polygon->vList[index + 1].y + polygon->y0,
+				polygon->colour,
+				videoBuffer,
+				lPitch);
+		}
+
+		// close the polygon
+		drawClipLine8bit(
+				// first endpoint
+				polygon->vList[0].x + polygon->x0,
+				polygon->vList[0].y + polygon->y0,
+				// next endpoint
+				polygon->vList[index].x + polygon->x0,
+				polygon->vList[index].y + polygon->y0,
+				polygon->colour,
+				videoBuffer,
+				lPitch);
+
+		return(1);
+	}
+
+	return(0);
+}
+
+int rotatePolygon2D(POLYGON2DF_PTR poly, int thetaDeg){
+	if (!poly)
+		return(0);
+
+	for (int currVert = 0; currVert < poly->numVerts; currVert++){
+		
+		float xr = (float) poly->vList[currVert].x * cosLookup[thetaDeg] - 
+						(float) poly->vList[currVert].y * sinLookup[thetaDeg];
+
+		float yr = (float)poly->vList[currVert].x * sinLookup[thetaDeg] + 
+						(float)poly->vList[currVert].y * cosLookup[thetaDeg];
+
+		poly->vList[currVert].x = xr;
+		poly->vList[currVert].y = yr;
+	}
+
+	// return success
+	return(1);
 }

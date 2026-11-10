@@ -75,3 +75,18 @@ typedef struct POLYGON2DI_TYP {
 	DWORD colour;
 	VERTEX2DI *vList;
 } POLYGON2DI, *POLYGON2DI_PTR;
+
+// 2D polygon vertex, F for float (x, y)
+typedef struct VERTEX2DF_TYP {
+	float x, y;
+} VERTEX2DF, *VERTEX2DF_PTR;
+
+// 2D polygon, F for float (x, y)
+typedef struct POLYGON2DF_TYP {
+	int state;
+	int numVerts;
+	float x0, y0;
+	float xv, yv;
+	DWORD colour;
+	VERTEX2DF *vList;
+} POLYGON2DF, *POLYGON2DF_PTR;

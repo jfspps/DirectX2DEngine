@@ -8,6 +8,78 @@ extern DDSURFACEDESC2 ddsd;
 extern LPDIRECTDRAWSURFACE7 lpddsBack;
 extern LPDIRECTDRAWSURFACE7 lpddsPrimary;
 
+// these can be removed after Demos are not longerr required
+POLYGON2DF asteroidsF[64]; // the asteroids (float)
+POLYGON2DI asteroidsI[64]; // the asteroids (int)
+
+void runDemos(){
+	// Demo D: rotating 2d float based polygons
+	for (int curr_index = 0; curr_index < 64; curr_index++){
+		// glow asteroids
+		asteroidsF[curr_index].colour = rand()%256;
+
+		// draw the polygon
+		draw2DFPolygon8Bit(
+			&asteroidsF[curr_index], 
+			(UCHAR *)ddsd.lpSurface, 
+			ddsd.lPitch);
+
+		// rotate the polygon by 15 degrees, draw again next time...
+		rotatePolygon2D(&asteroidsF[curr_index], 15);
+
+		// test for out of bounds
+		if (asteroidsF[curr_index].x0 > SCREEN_WIDTH+100)
+			asteroidsF[curr_index].x0 = - 100;
+
+		if (asteroidsF[curr_index].y0 > SCREEN_HEIGHT+100)
+			asteroidsF[curr_index].y0 = - 100;
+
+		if (asteroidsF[curr_index].x0 < -100)
+			asteroidsF[curr_index].x0 = SCREEN_WIDTH+100;
+
+		if (asteroidsF[curr_index].y0 < -100)
+			asteroidsF[curr_index].y0 = SCREEN_HEIGHT+100;
+	}
+
+
+	// Demo C: draw 2D int based polygons
+	//for (int curr_index = 0; curr_index < 64; curr_index++)
+ //   {
+	//	// glow asteroids
+	//	asteroidsI[curr_index].colour = rand()%256;
+
+	//	// do the graphics
+	//	draw2DIPolygon8Bit(
+	//		&asteroidsI[curr_index], 
+	//		(UCHAR *)ddsd.lpSurface, 
+	//		ddsd.lPitch);
+	//}
+
+	
+
+	// Demo B: draw 10 random clipped lines
+	//for (int index = 0; index < 10; index++){
+	//	drawClipLine8bit(
+	//		rand()%SCREEN_WIDTH, 
+	//		rand()%SCREEN_HEIGHT,
+	//		rand()%SCREEN_WIDTH, 
+	//		rand()%SCREEN_HEIGHT,
+	//		rand()%256,
+	//		(UCHAR *)ddsd.lpSurface, 
+	//		ddsd.lPitch);
+ //   }
+
+
+	// Demo A: plot 1000 random pixels
+	//for (int index = 0; index < 1000; index++){
+	//	int x = rand() % SCREEN_WIDTH;
+	//	int y = rand() % SCREEN_HEIGHT;
+
+	//	UCHAR colour = rand() % 256;
+	//	backBuffer[x + y*ddsd.lPitch] = colour;
+	//}
+}
+
 int gameMain(void *params = NULL, int numParams = 0){
 	// the main game loop
 
@@ -44,65 +116,11 @@ int gameMain(void *params = NULL, int numParams = 0){
 		destPtr += ddsd.lPitch;
 	}
 
-	// Demo C: draw polygons
-	// define points of asteroid
-	POLYGON2DI asteroids[64]; // the asteroids
-	VERTEX2DI asteroidVertices[8] = {33,-3, 9,-18, -12,-9, -21,-12, -9,6, -15,15, -3,27, 21,21};
-
-	// initialize all asteroids
-	for (int curr_index = 0; curr_index < 64; curr_index++){
-		// initialize the asteroid
-		asteroids[curr_index].state       = 1;   // turn it on
-		asteroids[curr_index].numVerts   = 8;  
-		asteroids[curr_index].x0          = rand()%SCREEN_WIDTH;
-		asteroids[curr_index].y0          = rand()%SCREEN_HEIGHT;
-		asteroids[curr_index].xv          = -8 + rand()%17;
-		asteroids[curr_index].yv          = -8 + rand()%17;
-		asteroids[curr_index].colour       = rand()%256;
-		asteroids[curr_index].vList       = new VERTEX2DI [asteroids[curr_index].numVerts];
-	 
-	   for (int index = 0; index < asteroids[curr_index].numVerts; index++)
-			asteroids[curr_index].vList[index] = asteroidVertices[index];
-	}
-
-	for (int curr_index = 0; curr_index < 64; curr_index++)
-    {
-		// glow asteroids
-		asteroids[curr_index].colour = rand()%256;
-
-		// do the graphics
-		draw2DIPolygon8Bit(
-			&asteroids[curr_index], 
-			(UCHAR *)ddsd.lpSurface, 
-			ddsd.lPitch);
-	}
-
 	// begin drawing to the back buffer (this will
-	// eventually be replaced by engine requirements)
+	// eventually be replaced by engine requirements)-----------------------
+	runDemos();
+	// ...end of Demos ------------------------------------------
 
-	// Demo B: draw 10 random clipped lines
-	//for (int index = 0; index < 10; index++){
-	//	drawClipLine8bit(
-	//		rand()%SCREEN_WIDTH, 
-	//		rand()%SCREEN_HEIGHT,
-	//		rand()%SCREEN_WIDTH, 
-	//		rand()%SCREEN_HEIGHT,
-	//		rand()%256,
-	//		(UCHAR *)ddsd.lpSurface, 
-	//		ddsd.lPitch);
- //   }
-
-
-	// Demo A: plot 1000 random pixels
-	//for (int index = 0; index < 1000; index++){
-	//	int x = rand() % SCREEN_WIDTH;
-	//	int y = rand() % SCREEN_HEIGHT;
-
-	//	UCHAR colour = rand() % 256;
-	//	backBuffer[x + y*ddsd.lPitch] = colour;
-	//}
-
-	// ...end of Demo
 
 	if (FAILED(lpddsBack->Unlock(NULL))){
 		// failed to unlock the back buffer

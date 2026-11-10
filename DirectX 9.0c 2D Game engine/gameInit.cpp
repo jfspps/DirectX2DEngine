@@ -12,6 +12,58 @@ extern LPDIRECTDRAWSURFACE7 lpddsBack;
 extern LPDIRECTDRAWPALETTE lpddPalette;
 extern PALETTEENTRY palette[256];
 
+const double PI = 3.1415926535;
+
+float cosLookup[360];
+float sinLookup[360];
+
+// these can be removed after Demos are no longer required
+extern POLYGON2DF asteroidsF[64]; // the asteroids (float)
+extern POLYGON2DI asteroidsI[64]; // the asteroids (int)
+
+// prepare 2D int based polygons
+void preparePolygons2DI(POLYGON2DI_PTR asteroids){
+	VERTEX2DI asteroidVertices[8] = {33,-3, 9,-18, -12,-9, -21,-12, -9,6, -15,15, -3,27, 21,21};
+
+	// initialize all asteroids
+	for (int curr_index = 0; curr_index < 64; curr_index++){
+		// initialize the asteroid
+		asteroids[curr_index].state       = 1;   // turn it on
+		asteroids[curr_index].numVerts   = 8;  
+		asteroids[curr_index].x0          = rand()%SCREEN_WIDTH;
+		asteroids[curr_index].y0          = rand()%SCREEN_HEIGHT;
+		asteroids[curr_index].xv          = -8 + rand()%17;
+		asteroids[curr_index].yv          = -8 + rand()%17;
+		asteroids[curr_index].colour       = rand()%256;
+		asteroids[curr_index].vList       = new VERTEX2DI [asteroids[curr_index].numVerts];
+	 
+	   for (int index = 0; index < asteroids[curr_index].numVerts; index++)
+			asteroids[curr_index].vList[index] = asteroidVertices[index];
+	}
+}
+
+// prepare 2D float based polygons
+void preparePolygons2DF(POLYGON2DF_PTR asteroids){
+	VERTEX2DF asteroidVertices[8] = {33,-3, 9,-18, -12,-9, -21,-12, -9,6, -15,15, -3,27, 21,21};
+
+	// initialize all asteroids
+	for (int curr_index = 0; curr_index < 64; curr_index++){
+		// initialize the asteroid
+		asteroids[curr_index].state       = 1;   // turn it on
+		asteroids[curr_index].numVerts   = 8;  
+		asteroids[curr_index].x0          = rand()%SCREEN_WIDTH;
+		asteroids[curr_index].y0          = rand()%SCREEN_HEIGHT;
+		asteroids[curr_index].xv          = -8 + rand()%17;
+		asteroids[curr_index].yv          = -8 + rand()%17;
+		asteroids[curr_index].colour       = rand()%256;
+		asteroids[curr_index].vList       = new VERTEX2DF [asteroids[curr_index].numVerts];
+	 
+	   for (int index = 0; index < asteroids[curr_index].numVerts; index++)
+			asteroids[curr_index].vList[index] = asteroidVertices[index];
+	}
+}
+
+
 int gameInit(void *params = NULL, int numParams = 0){
 	// this is called once after the initial window is created and
 	// before the main event loop is entered, do all your initialization
@@ -93,6 +145,19 @@ int gameInit(void *params = NULL, int numParams = 0){
 		// failed to attach palette
 		return (0);
 	}
+
+	for (int ang = 0; ang < 360; ang++){
+		// convert ang to radians
+		float thetaRad = (float)ang*PI/(float)180;
+
+		// insert next entry into table
+		cosLookup[ang] = cos(thetaRad);
+		sinLookup[ang] = sin(thetaRad);
+	}
+
+	// this prepares asteroids and can be removed after Demos are no longer required
+	preparePolygons2DF(asteroidsF); // demo D
+	preparePolygons2DI(asteroidsI); // demo C
 
 	return(1);
 }
