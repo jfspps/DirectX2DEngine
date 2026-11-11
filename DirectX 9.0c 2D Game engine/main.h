@@ -40,6 +40,9 @@
 #define BITMAP_ID            0x4D42 // universal id for a bitmap
 #define MAX_COLORS_PALETTE   256
 
+// this can be removed after Demos are not longer required
+#define POLYGON_COUNT 16
+
 typedef unsigned short USHORT;
 typedef unsigned short WORD;
 typedef unsigned char  UCHAR;

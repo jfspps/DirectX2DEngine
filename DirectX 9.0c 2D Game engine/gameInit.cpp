@@ -18,48 +18,48 @@ float cosLookup[360];
 float sinLookup[360];
 
 // these can be removed after Demos are no longer required
-extern POLYGON2DF asteroidsF[64]; // the asteroids (float)
-extern POLYGON2DI asteroidsI[64]; // the asteroids (int)
+POLYGON2DF asteroidsF[POLYGON_COUNT]; // the asteroids (float)
+POLYGON2DI asteroidsI[POLYGON_COUNT]; // the asteroids (int)
 
 // prepare 2D int based polygons
-void preparePolygons2DI(POLYGON2DI_PTR asteroids){
+void preparePolygons2DI(){
 	VERTEX2DI asteroidVertices[8] = {33,-3, 9,-18, -12,-9, -21,-12, -9,6, -15,15, -3,27, 21,21};
 
 	// initialize all asteroids
-	for (int curr_index = 0; curr_index < 64; curr_index++){
+	for (int curr_index = 0; curr_index < POLYGON_COUNT; curr_index++){
 		// initialize the asteroid
-		asteroids[curr_index].state       = 1;   // turn it on
-		asteroids[curr_index].numVerts   = 8;  
-		asteroids[curr_index].x0          = rand()%SCREEN_WIDTH;
-		asteroids[curr_index].y0          = rand()%SCREEN_HEIGHT;
-		asteroids[curr_index].xv          = -8 + rand()%17;
-		asteroids[curr_index].yv          = -8 + rand()%17;
-		asteroids[curr_index].colour       = rand()%256;
-		asteroids[curr_index].vList       = new VERTEX2DI [asteroids[curr_index].numVerts];
+		asteroidsI[curr_index].state       = 1;   // turn it on
+		asteroidsI[curr_index].numVerts   = 8;  
+		asteroidsI[curr_index].x0          = rand()%SCREEN_WIDTH;
+		asteroidsI[curr_index].y0          = rand()%SCREEN_HEIGHT;
+		asteroidsI[curr_index].xv          = -8 + rand()%17;
+		asteroidsI[curr_index].yv          = -8 + rand()%17;
+		asteroidsI[curr_index].colour       = rand()%256;
+		asteroidsI[curr_index].vList       = new VERTEX2DI [asteroidsI[curr_index].numVerts];
 	 
-	   for (int index = 0; index < asteroids[curr_index].numVerts; index++)
-			asteroids[curr_index].vList[index] = asteroidVertices[index];
+	   for (int index = 0; index < asteroidsI[curr_index].numVerts; index++)
+			asteroidsI[curr_index].vList[index] = asteroidVertices[index];
 	}
 }
 
 // prepare 2D float based polygons
-void preparePolygons2DF(POLYGON2DF_PTR asteroids){
+void preparePolygons2DF(){
 	VERTEX2DF asteroidVertices[8] = {33,-3, 9,-18, -12,-9, -21,-12, -9,6, -15,15, -3,27, 21,21};
 
 	// initialize all asteroids
-	for (int curr_index = 0; curr_index < 64; curr_index++){
+	for (int curr_index = 0; curr_index < POLYGON_COUNT; curr_index++){
 		// initialize the asteroid
-		asteroids[curr_index].state       = 1;   // turn it on
-		asteroids[curr_index].numVerts   = 8;  
-		asteroids[curr_index].x0          = rand()%SCREEN_WIDTH;
-		asteroids[curr_index].y0          = rand()%SCREEN_HEIGHT;
-		asteroids[curr_index].xv          = -8 + rand()%17;
-		asteroids[curr_index].yv          = -8 + rand()%17;
-		asteroids[curr_index].colour       = rand()%256;
-		asteroids[curr_index].vList       = new VERTEX2DF [asteroids[curr_index].numVerts];
+		asteroidsF[curr_index].state       = 1;   // turn it on
+		asteroidsF[curr_index].numVerts   = 8;  
+		asteroidsF[curr_index].x0          = rand()%SCREEN_WIDTH;
+		asteroidsF[curr_index].y0          = rand()%SCREEN_HEIGHT;
+		asteroidsF[curr_index].xv          = -8 + rand()%17;
+		asteroidsF[curr_index].yv          = -8 + rand()%17;
+		asteroidsF[curr_index].colour       = rand()%256;
+		asteroidsF[curr_index].vList       = new VERTEX2DF [asteroidsF[curr_index].numVerts];
 	 
-	   for (int index = 0; index < asteroids[curr_index].numVerts; index++)
-			asteroids[curr_index].vList[index] = asteroidVertices[index];
+	   for (int index = 0; index < asteroidsF[curr_index].numVerts; index++)
+			asteroidsF[curr_index].vList[index] = asteroidVertices[index];
 	}
 }
 
@@ -156,8 +156,8 @@ int gameInit(void *params = NULL, int numParams = 0){
 	}
 
 	// this prepares asteroids and can be removed after Demos are no longer required
-	preparePolygons2DF(asteroidsF); // demo D
-	preparePolygons2DI(asteroidsI); // demo C
+	preparePolygons2DF(); // demo D
+	preparePolygons2DI(); // demo C
 
 	return(1);
 }

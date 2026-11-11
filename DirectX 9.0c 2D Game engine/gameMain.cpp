@@ -8,13 +8,13 @@ extern DDSURFACEDESC2 ddsd;
 extern LPDIRECTDRAWSURFACE7 lpddsBack;
 extern LPDIRECTDRAWSURFACE7 lpddsPrimary;
 
-// these can be removed after Demos are not longerr required
-POLYGON2DF asteroidsF[64]; // the asteroids (float)
-POLYGON2DI asteroidsI[64]; // the asteroids (int)
+// these can be removed after Demos are not longer required
+extern POLYGON2DF asteroidsF[]; // the asteroids (float)
+extern POLYGON2DI asteroidsI[]; // the asteroids (int)
 
 void runDemos(){
 	// Demo D: rotating 2d float based polygons
-	for (int curr_index = 0; curr_index < 64; curr_index++){
+	for (int curr_index = 0; curr_index < POLYGON_COUNT; curr_index++){
 		// glow asteroids
 		asteroidsF[curr_index].colour = rand()%256;
 
@@ -43,7 +43,7 @@ void runDemos(){
 
 
 	// Demo C: draw 2D int based polygons
-	//for (int curr_index = 0; curr_index < 64; curr_index++)
+	//for (int curr_index = 0; curr_index < POLYGON_COUNT; curr_index++)
  //   {
 	//	// glow asteroids
 	//	asteroidsI[curr_index].colour = rand()%256;
