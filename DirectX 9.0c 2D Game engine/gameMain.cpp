@@ -13,7 +13,7 @@ extern POLYGON2DF asteroidsF[]; // the asteroids (float)
 extern POLYGON2DI asteroidsI[]; // the asteroids (int)
 
 void runDemos(){
-	// Demo D: rotating 2d float based polygons
+	// Demo E: scaling polygons for some factor (sx, sy)
 	for (int curr_index = 0; curr_index < POLYGON_COUNT; curr_index++){
 		// glow asteroids
 		asteroidsF[curr_index].colour = rand()%256;
@@ -24,8 +24,11 @@ void runDemos(){
 			(UCHAR *)ddsd.lpSurface, 
 			ddsd.lPitch);
 
-		// rotate the polygon by 15 degrees, draw again next time...
-		rotatePolygon2D(&asteroidsF[curr_index], 15);
+		// test for scale
+		if (KEYDOWN('A')) // scale up
+		   scalePolygon2DF(&asteroidsF[curr_index], 1.3, 1.3);
+		else if (KEYDOWN('S')) // scale down
+		   scalePolygon2DF(&asteroidsF[curr_index], 0.4, 0.4);
 
 		// test for out of bounds
 		if (asteroidsF[curr_index].x0 > SCREEN_WIDTH+100)
@@ -40,6 +43,35 @@ void runDemos(){
 		if (asteroidsF[curr_index].y0 < -100)
 			asteroidsF[curr_index].y0 = SCREEN_HEIGHT+100;
 	}
+
+
+	// Demo D: rotating 2d float based polygons
+	//for (int curr_index = 0; curr_index < POLYGON_COUNT; curr_index++){
+	//	// glow asteroids
+	//	asteroidsF[curr_index].colour = rand()%256;
+
+	//	// draw the polygon
+	//	draw2DFPolygon8Bit(
+	//		&asteroidsF[curr_index], 
+	//		(UCHAR *)ddsd.lpSurface, 
+	//		ddsd.lPitch);
+
+	//	// rotate the polygon by 15 degrees, draw again next time...
+	//	rotatePolygon2D(&asteroidsF[curr_index], 15);
+
+	//	// test for out of bounds
+	//	if (asteroidsF[curr_index].x0 > SCREEN_WIDTH+100)
+	//		asteroidsF[curr_index].x0 = - 100;
+
+	//	if (asteroidsF[curr_index].y0 > SCREEN_HEIGHT+100)
+	//		asteroidsF[curr_index].y0 = - 100;
+
+	//	if (asteroidsF[curr_index].x0 < -100)
+	//		asteroidsF[curr_index].x0 = SCREEN_WIDTH+100;
+
+	//	if (asteroidsF[curr_index].y0 < -100)
+	//		asteroidsF[curr_index].y0 = SCREEN_HEIGHT+100;
+	//}
 
 
 	// Demo C: draw 2D int based polygons

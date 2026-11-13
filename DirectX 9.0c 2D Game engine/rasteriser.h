@@ -37,3 +37,13 @@ int draw2DFPolygon8Bit(POLYGON2DF_PTR polygon, UCHAR *videoBuffer, int lPitch);
 * Rotates a 2D (assumed float based) polygon by theta degrees
 */
 int rotatePolygon2D(POLYGON2DF_PTR poly, int thetaDeg);
+
+/*
+* Scales a 2D (assumed float based) polygon by sx > 0 and sy > 0
+*/
+int scalePolygon2DF(POLYGON2DF_PTR polygon, float sx, float sy);
+
+/*
+* Scales a 2D (assumed int based) polygon by sx > 0 and sy > 0
+*/
+int scalePolygon2DI(POLYGON2DI_PTR polygon, float sx, float sy);

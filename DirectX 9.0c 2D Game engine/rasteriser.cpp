@@ -574,3 +574,35 @@ int rotatePolygon2D(POLYGON2DF_PTR poly, int thetaDeg){
 	// return success
 	return(1);
 }
+
+int scalePolygon2DF(POLYGON2DF_PTR polygon, float sx, float sy){
+	// validate
+	if (!polygon || sx <= 0 || sy <= 0)
+	   return(0);
+
+	// loop and scale each point
+	for (int curr_vert = 0; curr_vert < polygon->numVerts; curr_vert++){
+		// scale and store result back
+		polygon->vList[curr_vert].x *= sx;
+		polygon->vList[curr_vert].y *= sy;
+	}
+
+	// return success
+	return(1);
+}
+
+int scalePolygon2DI(POLYGON2DI_PTR polygon, float sx, float sy){
+	// validate
+	if (!polygon || sx <= 0 || sy <= 0)
+	   return(0);
+
+	// loop and scale each point
+	for (int curr_vert = 0; curr_vert < polygon->numVerts; curr_vert++){
+		// scale and store result back
+		polygon->vList[curr_vert].x *= sx;
+		polygon->vList[curr_vert].y *= sy;
+	}
+
+	// return success
+	return(1);
+}
