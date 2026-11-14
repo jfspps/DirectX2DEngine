@@ -555,20 +555,44 @@ int draw2DFPolygon8Bit(POLYGON2DF_PTR polygon, UCHAR *videoBuffer, int lPitch){
 	return(0);
 }
 
-int rotatePolygon2D(POLYGON2DF_PTR poly, int thetaDeg){
-	if (!poly)
+int translatePolygon2DI(POLYGON2DI_PTR polygon, int dx, int dy){
+	if (!polygon)
+	   return(0);
+
+	// translate
+	polygon->x0 += dx;
+	polygon->y0 += dy;
+
+	// return success
+	return(1);
+}
+
+int translatePolygon2DF(POLYGON2DF_PTR polygon, int dx, int dy){
+	if (!polygon)
+	   return(0);
+
+	// translate
+	polygon->x0 += dx;
+	polygon->y0 += dy;
+
+	// return success
+	return(1);
+}
+
+int rotatePolygon2D(POLYGON2DF_PTR polygon, int thetaDeg){
+	if (!polygon)
 		return(0);
 
-	for (int currVert = 0; currVert < poly->numVerts; currVert++){
+	for (int currVert = 0; currVert < polygon->numVerts; currVert++){
 		
-		float xr = (float) poly->vList[currVert].x * cosLookup[thetaDeg] - 
-						(float) poly->vList[currVert].y * sinLookup[thetaDeg];
+		float xr = (float) polygon->vList[currVert].x * cosLookup[thetaDeg] - 
+						(float) polygon->vList[currVert].y * sinLookup[thetaDeg];
 
-		float yr = (float)poly->vList[currVert].x * sinLookup[thetaDeg] + 
-						(float)poly->vList[currVert].y * cosLookup[thetaDeg];
+		float yr = (float)polygon->vList[currVert].x * sinLookup[thetaDeg] + 
+						(float)polygon->vList[currVert].y * cosLookup[thetaDeg];
 
-		poly->vList[currVert].x = xr;
-		poly->vList[currVert].y = yr;
+		polygon->vList[currVert].x = xr;
+		polygon->vList[currVert].y = yr;
 	}
 
 	// return success

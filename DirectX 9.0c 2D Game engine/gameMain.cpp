@@ -29,6 +29,20 @@ void runDemos(){
 		   scalePolygon2DF(&asteroidsF[curr_index], 1.3, 1.3);
 		else if (KEYDOWN('S')) // scale down
 		   scalePolygon2DF(&asteroidsF[curr_index], 0.4, 0.4);
+		
+		// test for translation
+		if (KEYDOWN(VK_RIGHT)) // translate right
+		   translatePolygon2DF(&asteroidsF[curr_index], 5, 0);
+		else
+		if (KEYDOWN(VK_LEFT)) // translate left
+		   translatePolygon2DF(&asteroidsF[curr_index], -5, 0);    
+
+		// test for translate
+		if (KEYDOWN(VK_UP)) // translate up
+		   translatePolygon2DF(&asteroidsF[curr_index], 0, -5);
+		else
+		if (KEYDOWN(VK_DOWN)) // translate down
+		   translatePolygon2DF(&asteroidsF[curr_index], 0, 5);  
 
 		// test for out of bounds
 		if (asteroidsF[curr_index].x0 > SCREEN_WIDTH+100)
@@ -163,7 +177,7 @@ int gameMain(void *params = NULL, int numParams = 0){
 	while (FAILED(lpddsPrimary->Flip(NULL, DDFLIP_WAIT)));
 
 	// milliseconds
-	Sleep(500);
+	Sleep(300);
 
 	return(1);
 }

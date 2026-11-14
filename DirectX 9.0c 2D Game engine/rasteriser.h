@@ -34,6 +34,18 @@ int draw2DIPolygon8Bit(POLYGON2DI_PTR polygon, UCHAR *videoBuffer, int lPitch);
 int draw2DFPolygon8Bit(POLYGON2DF_PTR polygon, UCHAR *videoBuffer, int lPitch);
 
 /*
+* Translates a polygon (assumed int based) by some displacement dx (to the left)
+* and displacement dy (down)
+*/
+int translatePolygon2DI(POLYGON2DI_PTR polygon, int dx, int dy);
+
+/*
+* Translates a polygon (assumed float based) by some displacement dx (to the left)
+* and displacement dy (down)
+*/
+int translatePolygon2DF(POLYGON2DF_PTR polygon, int dx, int dy);
+
+/*
 * Rotates a 2D (assumed float based) polygon by theta degrees
 */
 int rotatePolygon2D(POLYGON2DF_PTR poly, int thetaDeg);

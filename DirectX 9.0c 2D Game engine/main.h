@@ -32,8 +32,8 @@
 
 
 // default screen size
-#define SCREEN_WIDTH    640  // size of screen
-#define SCREEN_HEIGHT   480
+#define SCREEN_WIDTH    1024  // size of screen
+#define SCREEN_HEIGHT   768
 #define SCREEN_BPP      8    // bits per pixel
 #define MAX_COLORS      256  // maximum colors
 
@@ -41,7 +41,7 @@
 #define MAX_COLORS_PALETTE   256
 
 // this can be removed after Demos are not longer required
-#define POLYGON_COUNT 16
+#define POLYGON_COUNT 64
 
 typedef unsigned short USHORT;
 typedef unsigned short WORD;
