@@ -93,3 +93,12 @@ typedef struct POLYGON2DF_TYP {
 	DWORD colour;
 	VERTEX2DF *vList;
 } POLYGON2DF, *POLYGON2DF_PTR;
+
+// matrices
+typedef struct MATRIX1X3_TYP{
+	float M[3];
+} MATRIX1X3, *MATRIX1X3_PTR;
+
+typedef struct MATRIX3X3_TYP{
+	float M[3][3];
+} MATRIX3X3, *MATRIX3X3_PTR;

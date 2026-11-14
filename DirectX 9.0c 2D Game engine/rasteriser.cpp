@@ -630,3 +630,194 @@ int scalePolygon2DI(POLYGON2DI_PTR polygon, float sx, float sy){
 	// return success
 	return(1);
 }
+
+int matrixInit3X3(MATRIX3X3_PTR ma,
+				  float m00, float m01, float m02,
+				  float m10, float m11, float m12,
+				  float m20, float m21, float m22){
+
+	ma->M[0][0] = m00; ma->M[0][1] = m01; ma->M[0][2] = m02; 
+	ma->M[1][0] = m10; ma->M[1][1] = m11; ma->M[1][2] = m12; 
+	ma->M[2][0] = m20; ma->M[2][1] = m21; ma->M[2][2] = m22; 
+
+	// return success
+	return(1);
+}
+
+int matrixMultiply1X3_3X3(MATRIX1X3_PTR ma, MATRIX3X3_PTR mb, MATRIX1X3_PTR mprod){
+    for (int col = 0; col < 3; col++){
+        // compute dot product from row of ma 
+        // and column of mb
+
+        float sum = 0;
+
+        for (int row = 0; row < 3; row++){
+			// add in next product pair
+			sum += (ma->M[row] * mb->M[row][col]);
+		}
+
+        mprod->M[col] = sum;
+	}
+	
+	return(1);
+}
+
+int translatePolygon2DIM(POLYGON2DI_PTR polygon, int dx, int dy){
+	if (!polygon)
+	   return(0);
+
+	MATRIX3X3 mt; // used to hold translation transform matrix
+
+	// initialize the translation matrix
+	matrixInit3X3(&mt,1,0,0, 0,1,0, dx,dy,1); 
+
+	// create a 1x3 matrix to do the transform
+	MATRIX1X3 p0 = {polygon->x0, polygon->y0, 0};
+	MATRIX1X3 pTemp = {0,0,0};
+
+	// now translate via a matrix multiply
+	matrixMultiply1X3_3X3(&p0, &mt, &pTemp);
+
+	// now copy the result back into polygon
+	polygon->x0 = pTemp.M[0];
+	polygon->y0 = pTemp.M[1];
+
+	// return success
+	return(1);
+}
+
+int translatePolygon2DFM(POLYGON2DF_PTR polygon, int dx, int dy){
+	if (!polygon)
+	   return(0);
+
+	MATRIX3X3 mt; // used to hold translation transform matrix
+
+	// initialize the translation matrix
+	matrixInit3X3(&mt,1,0,0, 0,1,0, dx,dy,1); 
+
+	// create a 1x3 matrix to do the transform
+	MATRIX1X3 p0 = {polygon->x0, polygon->y0, 0};
+	MATRIX1X3 pTemp = {0,0,0};
+
+	// now translate via a matrix multiply
+	matrixMultiply1X3_3X3(&p0, &mt, &pTemp);
+
+	// now copy the result back into polygon
+	polygon->x0 = pTemp.M[0];
+	polygon->y0 = pTemp.M[1];
+
+	// return success
+	return(1);
+}
+
+int rotatePolygon2DIM(POLYGON2DI_PTR polygon, int thetaDeg){
+	if (!polygon)
+	   return(0);
+
+	// test for negative rotation angle
+	if (thetaDeg < 0)
+	   thetaDeg += 360;
+
+	MATRIX3X3 mr; // used to hold rotation transform matrix
+
+	matrixInit3X3(&mr, cosLookup[thetaDeg],sinLookup[thetaDeg],0,
+					 -sinLookup[thetaDeg],cosLookup[thetaDeg],0, 
+					  0,0,1); 
+
+	for (int curr_vert = 0; curr_vert < polygon->numVerts; curr_vert++){
+		MATRIX1X3 p0 = {polygon->vList[curr_vert].x, polygon->vList[curr_vert].y, 0};
+		MATRIX1X3 pTemp;
+
+		// now rotate via the rotation matrix mr
+		matrixMultiply1X3_3X3(&p0, &mr, &pTemp);
+
+		// now copy the result back into vertex
+		polygon->vList[curr_vert].x = pTemp.M[0];
+		polygon->vList[curr_vert].y = pTemp.M[1];
+	}
+
+	// return success
+	return(1);
+}
+
+int rotatePolygon2DFM(POLYGON2DF_PTR polygon, int thetaDeg){
+	if (!polygon)
+	   return(0);
+
+	// test for negative rotation angle
+	if (thetaDeg < 0)
+	   thetaDeg += 360;
+
+	MATRIX3X3 mr; // used to hold rotation transform matrix
+
+	matrixInit3X3(&mr, cosLookup[thetaDeg],sinLookup[thetaDeg],0,
+					 -sinLookup[thetaDeg],cosLookup[thetaDeg],0, 
+					  0,0,1); 
+
+	for (int curr_vert = 0; curr_vert < polygon->numVerts; curr_vert++){
+		MATRIX1X3 p0 = {polygon->vList[curr_vert].x, polygon->vList[curr_vert].y, 0};
+		MATRIX1X3 pTemp;
+
+		// now rotate via the rotation matrix mr
+		matrixMultiply1X3_3X3(&p0, &mr, &pTemp);
+
+		// now copy the result back into vertex
+		polygon->vList[curr_vert].x = pTemp.M[0];
+		polygon->vList[curr_vert].y = pTemp.M[1];
+	}
+
+	// return success
+	return(1);
+}
+
+int scalePolygon2DIM(POLYGON2DI_PTR polygon, float sx, float sy){
+	if (!polygon || sx <=0 || sy <= 0)
+	   return(0);
+
+	MATRIX3X3 ms; // used to hold scaling transform matrix
+
+	matrixInit3X3(&ms,sx,0,0, 
+					  0,sy,0, 
+					  0,0,1); 
+
+	for (int curr_vert = 0; curr_vert < polygon->numVerts; curr_vert++){
+		MATRIX1X3 p0 = {polygon->vList[curr_vert].x, polygon->vList[curr_vert].y, 0};
+		MATRIX1X3 pTemp = {0,0,0};
+
+		// now scale via a matrix multiply
+		matrixMultiply1X3_3X3(&p0, &ms, &pTemp);
+
+		// now copy the result back into vertex
+		polygon->vList[curr_vert].x = pTemp.M[0];
+		polygon->vList[curr_vert].y = pTemp.M[1];
+	}
+
+	// return success
+	return(1);
+}
+
+int scalePolygon2DFM(POLYGON2DF_PTR polygon, float sx, float sy){
+	if (!polygon || sx <=0 || sy <= 0)
+	   return(0);
+
+	MATRIX3X3 ms; // used to hold scaling transform matrix
+
+	matrixInit3X3(&ms,sx,0,0, 
+					  0,sy,0, 
+					  0,0,1); 
+
+	for (int curr_vert = 0; curr_vert < polygon->numVerts; curr_vert++){
+		MATRIX1X3 p0 = {polygon->vList[curr_vert].x, polygon->vList[curr_vert].y, 0};
+		MATRIX1X3 pTemp = {0,0,0};
+
+		// now scale via a matrix multiply
+		matrixMultiply1X3_3X3(&p0, &ms, &pTemp);
+
+		// now copy the result back into vertex
+		polygon->vList[curr_vert].x = pTemp.M[0];
+		polygon->vList[curr_vert].y = pTemp.M[1];
+	}
+
+	// return success
+	return(1);
+}
