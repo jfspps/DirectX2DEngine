@@ -104,3 +104,13 @@ int scalePolygon2DIM(POLYGON2DI_PTR polygon, float sx, float sy);
 * Scales the polygon (assumed float based) by sx > 0 and sy > 0 with matrices
 */
 int scalePolygon2DFM(POLYGON2DF_PTR polygon, float sx, float sy);
+
+/*
+* Draws a 2D (int coord based) triangle, deconstructing the triangle provided into
+* flat top and flat bottom triangles where required
+*/
+void drawTriangle2DI(int x1, int y1,
+					 int x2, int y2,
+					 int x3, int y3,
+					 int colour,
+					 UCHAR *dest_buffer, int mempitch);
