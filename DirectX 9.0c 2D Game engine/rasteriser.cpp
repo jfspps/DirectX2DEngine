@@ -1066,11 +1066,13 @@ void drawTriangle2DI(
 	// test if top of triangle is flat
 	if (y1 == y2){
 
+		// this means (x3, y3) are the lower vertex;
 		// coords: (xleft, yleft), (xright, yright), (xb, yb)
 		drawFlatTopTriangle(x1, y1, x2, y2, x3, y3, colour, dest_buffer, mempitch);
 
 	} else if (y2 == y3){
 
+		// this means (x1, y1) are the top vertex;
 		// coords: (xt, yt), (xleft, yleft), (xright, yright)
 		drawFlatBottomTriangle(x1, y1, x2, y2, x3, y3, colour, dest_buffer, mempitch);
 		
