@@ -822,11 +822,9 @@ int scalePolygon2DFM(POLYGON2DF_PTR polygon, float sx, float sy){
 	return(1);
 }
 
-void drawFlatTopTriangle(int x1, int y1,
-						 int x2, int y2,
-						 int x3, int y3,
-						 int colour, 
-						 UCHAR *dest_buffer, int mempitch){
+void drawFlatTopTriangle(
+	int xleft, int yleft, int xright, int yright, int xb, int yb,
+	int colour, UCHAR *dest_buffer, int mempitch){
 
 	float dx_right,    // the dx/dy ratio of the right edge of line
 		  dx_left,     // the dx/dy ratio of the left edge of line
@@ -841,55 +839,56 @@ void drawFlatTopTriangle(int x1, int y1,
 	// destination address of next scanline
 	UCHAR *dest_addr = NULL;
 
-	// test order of x1 and x2
-	if (x2 < x1){
-		temp_x = x2;
-		x2 = x1;
-		x1 = temp_x;
+	// test order of xleft and xright
+	if (xright < xleft){
+		temp_x = xright;
+		xright = xleft;
+		xleft = temp_x;
 	}
 
 	// compute delta's
-	height = y3 - y1;
+	height = yb - yleft;
 
-	dx_left  = (x3 - x1) / height;
-	dx_right = (x3 - x2) / height;
+	dx_left  = (xb - xleft) / height;
+	dx_right = (xb - xright) / height;
 
 	// set starting points
-	xStart = (float) x1;
-	xEnd = (float) x2 + (float) 0.5;
+	xStart = (float) xleft;
+	xEnd = (float) xright + (float) 0.5;
 
 	// perform y clipping
-	if (y1 < minClipY){
-	   xStart += dx_left*(float)(-y1 + minClipY);
-	   xEnd += dx_right*(float)(-y1 + minClipY);
+	if (yleft < minClipY){
+	   xStart += dx_left*(float)(-yleft + minClipY);
+	   xEnd += dx_right*(float)(-yleft + minClipY);
 
-	   // reset y1
-	   y1 = minClipY;
+	   // reset yleft
+	   yleft = minClipY;
 	}
 
-	if (y3 > maxClipY)
-	   y3 = maxClipY;
+	if (yb > maxClipY)
+	   yb = maxClipY;
 
 	// compute starting address in video memory
-	dest_addr = dest_buffer + y1*mempitch;
+	dest_addr = dest_buffer + yleft*mempitch;
 
 	// test if x clipping is needed
-	if (x1 >= minClipX && x1 <= maxClipX &&
-		x2 >= minClipX && x2 <= maxClipX &&
-		x3 >= minClipX && x3 <= maxClipX){
+	if (xleft >= minClipX && xleft <= maxClipX &&
+		xright >= minClipX && xright <= maxClipX &&
+		xb >= minClipX && xb <= maxClipX){
 			
-			for (temp_y = y1; temp_y <= y3; temp_y++, dest_addr += mempitch){
+			for (temp_y = yleft; temp_y <= yb; temp_y++, dest_addr += mempitch){
 				memset((UCHAR *)dest_addr + (unsigned int)xStart,
 					colour, (unsigned int)(xEnd - xStart + 1));
 
-			// adjust starting point and ending point
-			xStart += dx_left;
-			xEnd += dx_right;
+				// adjust starting point and ending point
+				xStart += dx_left;
+				xEnd += dx_right;
 			}
+
 		} else {
 			// clip x axis with slower version
 			
-			for (temp_y = y1; temp_y <= y3; temp_y++, dest_addr += mempitch){
+			for (temp_y = yleft; temp_y <= yb; temp_y++, dest_addr += mempitch){
 				// do x clip
 				left  = (int)xStart;
 				right = (int)xEnd;
@@ -914,16 +913,14 @@ void drawFlatTopTriangle(int x1, int y1,
 				}
 				
 				memset((UCHAR *) dest_addr + (unsigned int)left,
-					colour, (unsigned int)(right-left+1));
+					colour, (unsigned int)(right - left + 1));
 			}
 	}
 }
 
-void drawFlatBottomTriangle(int x1, int y1,
-							int x2, int y2,
-							int x3, int y3,
-							int colour,
-							UCHAR *dest_buffer, int mempitch){
+void drawFlatBottomTriangle(
+	int xt, int yt, int xleft, int yleft, int xright, int yright, 
+	int colour, UCHAR *dest_buffer, int mempitch){
 
 	float dx_right,    // the dx/dy ratio of the right edge of line
 		dx_left,     // the dx/dy ratio of the left edge of line
@@ -938,55 +935,56 @@ void drawFlatBottomTriangle(int x1, int y1,
 	// destination address of next scanline
 	UCHAR *dest_addr;
 
-	// test order of x1 and x2
-	if (x3 < x2){
-		temp_x = x2;
-		x2     = x3;
-		x3     = temp_x;
+	// test order of xleft and xright
+	if (xright < xleft){
+		temp_x = xleft;
+		xleft     = xright;
+		xright     = temp_x;
 	}
 
 	// compute delta's
-	height = y3 - y1;
+	height = yright - yt;
 
-	dx_left  = (x2 - x1) / height;
-	dx_right = (x3 - x1) / height;
+	dx_left  = (xleft - xt) / height;
+	dx_right = (xright - xt) / height;
 
 	// set starting points
-	xStart = (float) x1;
-	xEnd = (float) x1; // +(float)0.5;
+	xStart = (float) xt;
+	xEnd = (float) xt; // +(float)0.5;
 
 	// perform y clipping
-	if (y1 < minClipY){
-		xStart += dx_left * (float)(-y1 + minClipY);
-		xEnd += dx_right * (float)(-y1 + minClipY);
+	if (yt < minClipY){
+		xStart += dx_left * (float)(-yt + minClipY);
+		xEnd += dx_right * (float)(-yt + minClipY);
 
-		// reset y1
-		y1 = minClipY;
+		// reset yt
+		yt = minClipY;
 	}
 
-	if (y3 > maxClipY)
-		y3 = maxClipY;
+	if (yright > maxClipY)
+		yright = maxClipY;
 
 	// compute starting address in video memory
-	dest_addr = dest_buffer + y1*mempitch;
+	dest_addr = dest_buffer + yt*mempitch;
 
 	// test if x clipping is needed
-	if (x1 >= minClipX && x1 <= maxClipX &&
-		x2 >= minClipX && x2 <= maxClipX &&
-		x3 >= minClipX && x3 <= maxClipX){
+	if (xt >= minClipX && xt <= maxClipX &&
+		xleft >= minClipX && xleft <= maxClipX &&
+		xright >= minClipX && xright <= maxClipX){
 			
-			for (temp_y = y1; temp_y <= y3; temp_y++, dest_addr += mempitch){
+			for (temp_y = yt; temp_y <= yright; temp_y++, dest_addr += mempitch){
 				memset((UCHAR  *)dest_addr + (unsigned int)xStart,
 					colour,(unsigned int)(xEnd - xStart + 1));
 
-			// adjust starting point and ending point
-			xStart += dx_left;
-			xEnd += dx_right;
-		}
+				// adjust starting point and ending point
+				xStart += dx_left;
+				xEnd += dx_right;
+			}
+
 	} else {
 		// clip x axis with slower version
 
-		for (temp_y = y1; temp_y <= y3; temp_y++, dest_addr += mempitch){
+		for (temp_y = yt; temp_y <= yright; temp_y++, dest_addr += mempitch){
 			// do x clip
 			left  = (int)xStart;
 			right = (int)xEnd;
@@ -1016,11 +1014,9 @@ void drawFlatBottomTriangle(int x1, int y1,
 	}
 }
 
-void drawTriangle2DI(int x1, int y1,
-					  int x2, int y2,
-					  int x3, int y3,
-					  int colour,
-					  UCHAR *dest_buffer, int mempitch){
+void drawTriangle2DI(
+	int x1, int y1, int x2, int y2, int x3, int y3,
+	int colour, UCHAR *dest_buffer, int mempitch){
 
 	int temp_x, // used for sorting
 		temp_y,
@@ -1069,15 +1065,23 @@ void drawTriangle2DI(int x1, int y1,
 
 	// test if top of triangle is flat
 	if (y1 == y2){
+
+		// coords: (xleft, yleft), (xright, yright), (xb, yb)
 		drawFlatTopTriangle(x1, y1, x2, y2, x3, y3, colour, dest_buffer, mempitch);
+
 	} else if (y2 == y3){
+
+		// coords: (xt, yt), (xleft, yleft), (xright, yright)
 		drawFlatBottomTriangle(x1, y1, x2, y2, x3, y3, colour, dest_buffer, mempitch);
+		
 	} else {
 		// general triangle that's needs to be broken up along long edge
 		new_x = x1 + (int)(0.5+(float)(y2 - y1) * (float)(x3 - x1)/(float)(y3 - y1));
 
-		// draw each sub-triangle
+		// coords: (xt, yt), (xleft, yleft), (xright, yright)
 		drawFlatBottomTriangle(x1, y1, new_x, y2, x2, y2, colour, dest_buffer, mempitch);
+
+		// coords: (xleft, yleft), (xright, yright), (xb, yb)
 		drawFlatTopTriangle(x2, y2, new_x, y2, x3, y3, colour, dest_buffer, mempitch);
 	}
 }
