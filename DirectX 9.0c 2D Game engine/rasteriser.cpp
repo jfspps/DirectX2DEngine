@@ -1087,3 +1087,11 @@ void drawTriangle2DI(
 		drawFlatTopTriangle(x2, y2, new_x, y2, x3, y3, colour, dest_buffer, mempitch);
 	}
 }
+
+void drawQuad2DI(int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, 
+				 int colour, UCHAR* destBuffer, int memPitch){
+
+	// this assumes x0 to x3 are given in a clockwise manner
+	drawTriangle2DI(x0, y0, x1, y1, x3, y3, colour, destBuffer, memPitch);
+	drawTriangle2DI(x1, y1, x2, y2, x3, y3, colour, destBuffer, memPitch);
+}

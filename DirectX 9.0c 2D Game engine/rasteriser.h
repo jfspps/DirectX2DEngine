@@ -114,3 +114,10 @@ void drawTriangle2DI(int x1, int y1,
 					 int x3, int y3,
 					 int colour,
 					 UCHAR *dest_buffer, int mempitch);
+
+/*
+* Draws a 2D (int coord based) quadrilateral, deconstructing the polygon provided into
+* two triangles, and then (if necessary) flat top and flat bottom triangles
+*/
+void drawQuad2DI(int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, 
+				 int colour, UCHAR* destBuffer, int memPitch);
