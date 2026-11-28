@@ -467,7 +467,7 @@ int clipLine(int &x1, int &y1, int &x2, int &y2){
 	return(1);
 }
 
-int drawClipLine8bit(int x0, int y0, int x1, int y1, UCHAR color, 
+int drawClipLine8bit(int x0, int y0, int x1, int y1, UCHAR colour, 
 					 UCHAR *videoBuffer, int lpitch){
 
 	int cxs, cys,
@@ -481,7 +481,7 @@ int drawClipLine8bit(int x0, int y0, int x1, int y1, UCHAR color,
 
 	// clip the line
 	if (clipLine(cxs, cys, cxe, cye))
-		drawLine8bit(cxs, cys, cxe, cye, color, videoBuffer, lpitch);
+		drawLine8bit(cxs, cys, cxe, cye, colour, videoBuffer, lpitch);
 
 	// return success
 	return(1);
@@ -1094,4 +1094,465 @@ void drawQuad2DI(int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3,
 	// this assumes x0 to x3 are given in a clockwise manner
 	drawTriangle2DI(x0, y0, x1, y1, x3, y3, colour, destBuffer, memPitch);
 	drawTriangle2DI(x1, y1, x2, y2, x3, y3, colour, destBuffer, memPitch);
+}
+
+void scanLineFilledPolygon2DI(POLYGON2DI_PTR polygon, UCHAR *vbuffer, int mempitch){
+
+	// this method rasterises the polygon per scan line while updating the 
+	// interpolants whenever a new vertex is reached
+
+	int ydiff1, ydiff2,         // difference between starting x and ending x
+		xdiff1, xdiff2,         // difference between starting y and ending y
+		start,                  // starting offset of line between edges
+		length,                 // distance from edge 1 to edge 2
+		errorterm1, errorterm2, // error terms for edges 1 & 2
+		offset1, offset2,       // offset of current pixel in edges 1 & 2
+		count1, count2,         // increment count for edges 1 & 2
+		xunit1, xunit2;         // unit to advance x offset for edges 1 & 2
+
+	// initialize count of number of edges drawn:
+	int edgecount = polygon->numVerts - 1;
+
+	// determine which vertex is at top of polygon:
+
+	int firstvert = 0;         // start by assuming vertex 0 is at top
+
+	int min_y = polygon->vList[0].y; // find y coordinate of vertex 0
+
+	for (int index = 1; index < polygon->numVerts; index++){  
+		// Search thru vertices
+ 		if ((polygon->vList[index].y) < min_y) {  
+			// is another vertex higher?
+			firstvert = index;                   
+			min_y = polygon->vList[index].y;
+		}
+	}
+
+	// finding starting and ending vertices of first two edges:
+	
+	// get starting vertex of edge 1
+	int startvert1 = firstvert;
+
+	// get starting vertex of edge 2
+	int startvert2 = firstvert;
+
+	int xstart1 = polygon->vList[startvert1].x + polygon->x0;
+	int ystart1 = polygon->vList[startvert1].y + polygon->y0;
+	int xstart2 = polygon->vList[startvert2].x + polygon->x0;
+	int ystart2 = polygon->vList[startvert2].y + polygon->y0;
+
+	// get ending vertex of edge 1
+	int endvert1 = startvert1 - 1;
+
+	if (endvert1 < 0)
+	   endvert1 = polygon->numVerts-1; // check for wrap
+
+	// get x & y coordinates of ending vertices
+	int xend1 = polygon->vList[endvert1].x + polygon->x0;      
+	int yend1 = polygon->vList[endvert1].y + polygon->y0; 
+
+	// get ending vertex of edge 2
+	int endvert2=startvert2+1;           
+
+	if (endvert2 == (polygon->numVerts)) 
+		endvert2 = 0;  // Check for wrap
+
+	// get x & y coordinates of ending vertices
+	int xend2 = polygon->vList[endvert2].x + polygon->x0;      
+	int yend2 = polygon->vList[endvert2].y + polygon->y0;
+
+	// draw the polygon:
+	while (edgecount > 0){    
+		// continue drawing until all edges drawn
+		offset1 = mempitch * ystart1 + xstart1;
+		offset2 = mempitch * ystart2 + xstart2;
+		  
+		// initialize error terms
+		// for edges 1 & 2
+		errorterm1 = 0;        
+		errorterm2 = 0;           
+
+		// get absolute value of
+   		if ((ydiff1 = yend1 - ystart1) < 0) 
+			ydiff1 =- ydiff1;
+
+		// x & y lengths of edges
+		if ((ydiff2 = yend2 - ystart2) < 0) 
+			ydiff2 =- ydiff2;
+
+  		if ((xdiff1 = xend1 - xstart1) < 0){               
+			// get value of length
+			// calculate X increment
+			xunit1 =- 1;                    
+			xdiff1 =- xdiff1;
+		} else {
+			xunit1 = 1;
+		}
+
+   		if ((xdiff2 = xend2 - xstart2) < 0){
+			// Get value of length
+			// calculate X increment
+  			xunit2 =- 1;                   
+			xdiff2 =- xdiff2;
+		} else {
+			xunit2 = 1;
+		}
+
+		// choose which of four routines to use
+		if (xdiff1 > ydiff1){    
+			// if x length of edge 1 is greater than y length
+			if (xdiff2 > ydiff2){  
+				// if X length of edge 2 is greater than y length
+
+				// increment edge 1 on X and edge 2 on X:
+				count1 = xdiff1;    // edge 1
+				count2 = xdiff2;    // edge 2
+
+				while (count1 && count2){  
+					// continue drawing until one edge is done
+    				// calculate edge 1:
+  					while ((errorterm1 < xdiff1) && (count1 > 0)){ 
+						// finished w/edge 1?
+
+						if (count1--){     
+							// count down on edge 1
+							offset1 += xunit1;  // increment pixel offset
+							xstart1 += xunit1;
+						}
+
+  						errorterm1 += ydiff1; // increment error term
+
+ 						if (errorterm1 < xdiff1) {  
+							// if not more than XDIFF
+
+							// ...plot a pixel
+							vbuffer[offset1] = (UCHAR)polygon->colour; 
+						}
+					}
+						
+					// if time to increment X, restore error term
+					errorterm1 -= xdiff1; 
+
+					// calculate edge 2:
+
+					while ((errorterm2 < xdiff2) && (count2 > 0)){
+						// finished w/edge 2?
+						if (count2--){
+							// count down on edge 2
+
+							// increment pixel offset
+							offset2 += xunit2;  
+							xstart2 += xunit2;
+						}
+						
+						// increment error term
+						errorterm2 += ydiff2;
+						
+						if (errorterm2 < xdiff2){  
+							// if not more than XDIFF
+
+							// ...plot a pixel
+							vbuffer[offset2] = (UCHAR)polygon->colour;  
+						}
+  					}
+					
+					// if time to increment X, restore error term
+					errorterm2 -= xdiff2;
+					
+					// draw line from edge 1 to edge 2:
+
+					// determine length of horizontal line
+					length = offset2 - offset1;
+
+					if (length < 0){
+						// make it positive
+						// and set START to edge 2
+						length =- length;       
+						start = offset2;        
+					} else {
+						// else set START to edge 1
+						start = offset1;
+					}
+					
+					for (int index = start; index < start + length + 1; index++){  
+						// From edge to edge..draw the line
+    					vbuffer[index]=(UCHAR)polygon->colour;         
+					}
+
+					// advance edge 1 offset to next line
+					offset1 += mempitch;           
+  					ystart1++;
+
+					// advance edge 2 offset to next line
+					offset2 += mempitch;           
+					ystart2++;
+				}
+			} else {
+				// increment edge 1 on X and edge 2 on Y:
+				count1 = xdiff1;    // edge 1
+				count2 = ydiff2;    // edge 2
+				
+				while (count1 && count2){  
+					// continue drawing until one edge is done
+   				
+					// calculate edge 1:
+					while ((errorterm1 < xdiff1) && (count1 > 0)){ 
+						// finished w/edge 1?
+
+				   		if (count1--){
+							// count down on edge 1
+							// increment pixel offset
+							offset1 += xunit1;  
+							xstart1 += xunit1;
+						}
+						
+						// increment error term
+						errorterm1 += ydiff1;
+						
+						if (errorterm1 < xdiff1){ 
+							// If not more than XDIFF
+							// ...plot a pixel
+							vbuffer[offset1] = (UCHAR)polygon->colour; 
+						}
+					}
+					
+					// If time to increment X, restore error term
+					errorterm1 -= xdiff1;
+					
+					// calculate edge 2:
+					// increment error term
+					errorterm2 += xdiff2;
+					
+					if (errorterm2 >= ydiff2){ 
+						// if time to increment Y...
+
+						// ...restore error term
+						errorterm2 -= ydiff2;       
+
+						// ...and advance offset to next pixel
+						offset2 += xunit2;           
+						xstart2 += xunit2;
+     				}
+					
+					count2--;
+					
+					// draw line from edge 1 to edge 2:
+					// determine length of horizontal line
+					length = offset2 - offset1;
+					
+					if (length < 0){ 
+						// ...make it positive
+						// and set START to edge 2
+						length =- length;       
+						start = offset2;        
+					} else {
+						// else set START to edge 1
+						start = offset1; 
+					}
+					
+					// from edge to edge
+					for (int index = start; index < start + length + 1; index++){
+						// ...draw the line
+						vbuffer[index] = (UCHAR)polygon->colour;
+					}
+					
+					// advance edge 1 offset to next line
+					offset1 += mempitch;           
+					ystart1++;
+					// advance edge 2 offset to next line
+					offset2 += mempitch;           
+					ystart2++;
+				}
+			}
+		} else {
+			if (xdiff2 > ydiff2){
+				// increment edge 1 on Y and edge 2 on X:
+
+				count1 = ydiff1;  // count for Y increment on edge 1
+				count2 = xdiff2;  // count for X increment on edge 2
+
+				while(count1 && count2){  
+					// continue drawing until one edge is done
+					// calculate edge 1:
+
+					errorterm1 += xdiff1; // Increment error term
+
+					// if time to increment Y...
+					if (errorterm1 >= ydiff1){  
+						// ...restore error term
+						errorterm1 -= ydiff1; 
+
+						// ...and advance offset to next pixel
+						offset1 += xunit1;            
+						xstart1 += xunit1;
+					}
+					
+					count1--;
+					
+					// Calculate edge 2:
+					
+					while ((errorterm2 < xdiff2) && (count2 > 0)){ 
+						// finished w/edge 1?
+						
+						if (count2--){ 
+							// count down on edge 2
+							// increment pixel offset
+							offset2+=xunit2;  
+							xstart2+=xunit2;
+						}
+						
+						// increment error term
+						errorterm2 += ydiff2;
+						
+						if (errorterm2 < xdiff2){  
+							// if not more than XDIFF
+							// ...plot a pixel
+							vbuffer[offset2] = (UCHAR)polygon->colour; 
+						}
+					}
+					
+					// if time to increment X, restore error term
+					errorterm2 -= xdiff2;  
+
+					// draw line from edge 1 to edge 2:
+
+					// determine length of horizontal line
+					length = offset2 - offset1;
+					
+					if (length < 0){
+						// ...make it positive
+						// and set START to edge 2
+						length =- length;  
+						start = offset2;   
+					} else {
+						// else set START to edge 1
+						start = offset1;  
+					}
+					
+					// from edge to edge...
+					for (int index = start; index < start + length + 1; index++){
+						// ...draw the line
+						vbuffer[index] = (UCHAR)polygon->colour;      
+					}
+					
+					// advance edge 1 offset to next line
+					offset1 += mempitch;         
+					ystart1++;
+
+					// advance edge 2 offset to next line
+					offset2 += mempitch;         
+					ystart2++;
+				}
+			} else {
+				// increment edge 1 on Y and edge 2 on Y:
+  				count1 = ydiff1;  // edge 1
+				count2 = ydiff2;  // edge 2
+				
+				while(count1 && count2){
+					// continue drawing until one edge is done
+      				// calculate edge 1:
+
+					// increment error term
+					errorterm1 += xdiff1;
+					
+					if (errorterm1 >= ydiff1){                           
+						// if time to increment Y
+
+						// ...restore error term
+						// ...and advance offset to next pixel
+						errorterm1 -= ydiff1;         
+						offset1 += xunit1;            
+						xstart1 += xunit1;
+					}
+					
+					count1--;
+					
+					// calculate edge 2:
+
+					// increment error term
+					errorterm2 += xdiff2;
+					
+					// if time to increment Y
+					if (errorterm2 >= ydiff2){
+						// ...restore error term
+						errorterm2 -= ydiff2;     
+						// ...and advance offset to next pixel
+						offset2 += xunit2;            
+						xstart2 += xunit2;
+					}
+					
+					--count2;
+					
+					// draw line from edge 1 to edge 2:
+					
+					// determine length of horizontal line
+					length = offset2 - offset1;
+					
+					if (length < 0){
+						// ...make it positive
+						// and set START to edge 2
+						length =- length;        
+						start=offset2;         
+					} else {
+						// else set START to edge 1
+						start=offset1;   
+					}
+					
+					// from edge to edge
+					for (int index = start; index < start + length + 1; index++){
+						// ...draw the line
+						vbuffer[index] = (UCHAR)polygon->colour;   
+					}
+					
+					// advance edge 1 offset to next line
+					offset1 += mempitch;            
+					ystart1++;
+
+					// advance edge 2 offset to next line
+					offset2 += mempitch;            
+					ystart2++;
+				}
+			}
+		} 
+
+		// another edge (at least) is complete. Start next edge, if any.
+		if (!count1){                      
+			// if edge 1 is complete...
+
+			// decrement the edge count
+			--edgecount;           
+
+			// make ending vertex into start vertex
+			// and get new ending vertex
+			startvert1 = endvert1;   
+			--endvert1;
+			
+			if (endvert1 < 0)
+				endvert1 = polygon->numVerts-1; // check for wrap
+
+			// get x & y of new end vertex
+			xend1 = polygon->vList[endvert1].x + polygon->x0;  
+			yend1 = polygon->vList[endvert1].y + polygon->y0;
+		}
+		
+		if (!count2){                     
+			// if edge 2 is complete...
+			
+			// decrement the edge count
+			--edgecount;     
+			
+			// make ending vertex into start vertex
+			startvert2 = endvert2;  
+
+			// and get new ending vertex
+			endvert2++;
+			
+			if (endvert2 == (polygon->numVerts)) 
+				endvert2=0; // check for wrap
+
+			// get x & y of new end vertex
+			xend2 = polygon->vList[endvert2].x + polygon->x0;  
+			yend2 = polygon->vList[endvert2].y + polygon->y0;
+		}
+	}
 }

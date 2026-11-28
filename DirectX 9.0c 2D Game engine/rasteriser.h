@@ -121,3 +121,9 @@ void drawTriangle2DI(int x1, int y1,
 */
 void drawQuad2DI(int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, 
 				 int colour, UCHAR* destBuffer, int memPitch);
+
+/*
+* Draws a 2D (int coord based) n-sided polygon, rastersing each scan line while updating the 
+* interpolants whenever a new vertex is reached
+*/
+void scanLineFilledPolygon2DI(POLYGON2DI_PTR polygon, UCHAR *vbuffer, int mempitch);
